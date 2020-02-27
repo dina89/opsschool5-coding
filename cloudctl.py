@@ -1,5 +1,6 @@
 import click
 import boto3
+from tabulate import tabulate
 
 client = boto3.client('ec2', region_name='us-east-1')
 
@@ -14,21 +15,19 @@ def cloudctl(ctx):
 @click.pass_context
 def get(ctx):
     """ get object """
-    print(ctx)
 
 
-@get.group()
+@get.command()
 @click.pass_context
 def instances(ctx):
+    instance_table = []
     """ get instances """
     response = client.describe_instances()
-    print(response)
     for reservation in response["Reservations"]:
         for instance in reservation["Instances"]:
-            # This sample print will output entire Dictionary object
-             print(instance)
-    print(ctx)
-
+            instance_row = [instance["InstanceId"],instance["Monitoring"]["State"],instance["KeyName"]]
+            instance_table.append(instance_row)       
+    print(tabulate(instance_table, headers=['InstanceId', 'State', 'Name']))
 
 def start():
     cloudctl(obj={})
