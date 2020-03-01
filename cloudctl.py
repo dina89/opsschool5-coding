@@ -25,7 +25,10 @@ def instances(ctx):
     response = client.describe_instances()
     for reservation in response["Reservations"]:
         for instance in reservation["Instances"]:
-            instance_row = [instance["InstanceId"],instance["Monitoring"]["State"],instance["KeyName"]]
+            for tag in instance['Tags']:
+                if tag['Key'] == 'Name':
+                 instance_name = tag['Value']
+            instance_row = [instance["InstanceId"],instance["Monitoring"]["State"],instance_name]
             instance_table.append(instance_row)       
     print(tabulate(instance_table, headers=['InstanceId', 'State', 'Name']))
 
